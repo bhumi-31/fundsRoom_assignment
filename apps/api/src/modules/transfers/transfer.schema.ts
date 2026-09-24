@@ -6,7 +6,7 @@ export const createTransferSchema = z.object({
     sourceLocationId: z.string().uuid({ message: 'sourceLocationId must be a valid UUID' }),
     destLocationId: z.string().uuid({ message: 'destLocationId must be a valid UUID' }),
     itemId: z.string().uuid({ message: 'itemId must be a valid UUID' }),
-    batch: z.string().min(1, { message: 'batch is required for stock deduction' }),
+    batch: z.string().optional(),
     quantity: z.number().int().positive({ message: 'quantity must be a positive integer' }),
   }),
 });
