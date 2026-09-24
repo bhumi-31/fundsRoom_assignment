@@ -131,7 +131,7 @@ export default function TransfersPage() {
 
       {/* Interactive Modal Form */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
           <div className="w-full max-w-lg bg-[#F5F1E8] border-3 border-[#0A0A0A] p-6 shadow-neo space-y-4">
             <div className="flex items-center justify-between border-b-3 border-[#0A0A0A] pb-3">
               <h3 className="text-xl font-black uppercase text-[#0A0A0A]">
