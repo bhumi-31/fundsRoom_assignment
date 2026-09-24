@@ -65,22 +65,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard/orders', label: 'CUSTOMER ORDERS' },
   ];
 
+  // Dynamic Molten Metal Shader color palette per page
+  const getThemeColors = (path: string) => {
+    if (path.includes('/inventory')) {
+      return { color1: '#A9D9F2', color2: '#0A0A0A', color3: '#FFB800' };
+    }
+    if (path.includes('/work-orders')) {
+      return { color1: '#FFB800', color2: '#0A0A0A', color3: '#FF4D4D' };
+    }
+    if (path.includes('/transfers')) {
+      return { color1: '#A9D9F2', color2: '#0A0A0A', color3: '#3DDC84' };
+    }
+    if (path.includes('/orders')) {
+      return { color1: '#FF6FA8', color2: '#0A0A0A', color3: '#FFB800' };
+    }
+    return { color1: '#FFB800', color2: '#0A0A0A', color3: '#F5F1E8' };
+  };
+
+  const theme = getThemeColors(pathname || '');
+
   return (
     <div className="min-h-screen flex flex-col relative bg-[#F5F1E8]">
-      {/* Subtle Molten Metal WebGL Background Layer (Non-interfering, pointer-events-none) */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-20 overflow-hidden">
+      {/* Layer 1: Dynamic WebGL Molten Metal Canvas (Customized per route, pointer-events-none) */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-25 overflow-hidden">
         <MoltenMetal
-          speed={0.2}
-          scale={3.5}
-          glow={1.2}
-          opacity={0.3}
-          lightMode={true}
-          color1="#FFB800"
-          color2="#A9D9F2"
-          color3="#0A0A0A"
-          backgroundColor="#F5F1E8"
+          key={pathname}
+          speed={0.25}
+          scale={3.8}
+          brightness={1.1}
+          color1={theme.color1}
+          color2={theme.color2}
+          color3={theme.color3}
+          mouseInteraction={false}
         />
       </div>
+
+      {/* Layer 2: Neobrutalist Dotted Pattern Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(#0A0A0A_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40" />
 
       {/* Neobrutalist Header Bar */}
       <header className="border-b-3 border-[#0A0A0A] bg-[#F5F1E8]/90 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
