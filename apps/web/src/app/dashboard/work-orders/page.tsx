@@ -72,6 +72,18 @@ export default function WorkOrdersPage() {
     }
   };
 
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await fetchApi(`/work-orders/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      loadWorkOrders();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update work order status');
+    }
+  };
+
   if (loading) {
     return <div className="p-12 text-center font-mono font-black animate-pulse">COMPUTING WORK ORDER SHORTAGES...</div>;
   }
@@ -199,7 +211,7 @@ export default function WorkOrdersPage() {
                 <th className="p-3 text-right">REQUIRED</th>
                 <th className="p-3 text-right">AVAILABLE</th>
                 <th className="p-3 text-right">SHORTAGE</th>
-                <th className="p-3">STATUS</th>
+                <th className="p-3">STATUS & TRANSITION</th>
               </tr>
             </thead>
             <tbody>
@@ -223,7 +235,21 @@ export default function WorkOrdersPage() {
                       )}
                     </td>
                     <td className="p-3 font-bold uppercase">
-                      <span className="px-2 py-1 bg-white border-2 border-[#0A0A0A]">{wo.status}</span>
+                      <select
+                        value={wo.status}
+                        onChange={(e) => handleStatusChange(wo.id, e.target.value)}
+                        className={`px-2 py-1 border-2 border-[#0A0A0A] font-mono text-xs font-black focus:outline-none cursor-pointer ${
+                          wo.status === 'COMPLETED'
+                            ? 'bg-[#3DDC84] text-black'
+                            : wo.status === 'IN_PROGRESS'
+                            ? 'bg-[#FFB800] text-black'
+                            : 'bg-white text-black'
+                        }`}
+                      >
+                        <option value="ASSIGNED">ASSIGNED</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="COMPLETED">COMPLETED</option>
+                      </select>
                     </td>
                   </tr>
                 ))
