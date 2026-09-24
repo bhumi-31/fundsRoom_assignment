@@ -1,0 +1,52 @@
+name: FOUNDRY // FORGE-OS CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: foundry
+          POSTGRES_PASSWORD: foundry123
+          POSTGRES_DB: foundry_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=apps/api/prisma/schema.prisma
+
+      - name: Run Backend Vitest Suite with Coverage
+        env:
+          DATABASE_URL: postgresql://foundry:foundry123@localhost:5432/foundry_db?schema=public
+          JWT_SECRET: super-secret-jwt-key-foundry-forge-os-2026
+          JWT_REFRESH_SECRET: super-secret-refresh-jwt-key-foundry-forge-os-2026
+        run: npm --prefix apps/api run test:coverage
+
+      - name: Build API Service
+        run: npm run build:api

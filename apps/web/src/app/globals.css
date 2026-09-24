@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-cream: #F5F1E8;
+  --border-black: #0A0A0A;
+}
+
+body {
+  background-color: var(--bg-cream);
+  color: #0A0A0A;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  background-image: radial-gradient(#0A0A0A 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+}
