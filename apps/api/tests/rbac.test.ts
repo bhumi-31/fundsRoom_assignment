@@ -6,7 +6,7 @@ import { env } from '../src/config/env.js';
 import { Role } from '@prisma/client';
 
 describe('RBAC Authorization Security Middleware', () => {
-  it('should reject unauthorized role SALES from hitting ADMIN Work Order creation route with HTTP 403', async () => {
+  it('[Mandatory Test #5] Unauthorized user cannot perform restricted operation (SALES cannot create Work Orders -> HTTP 403)', async () => {
     // Generate valid JWT token with SALES role claim
     const salesToken = jwt.sign(
       {
