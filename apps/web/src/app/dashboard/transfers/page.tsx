@@ -88,6 +88,7 @@ export default function TransfersPage() {
           sourceLocationId: selectedSourceId,
           destLocationId: selectedDestId,
           itemId: selectedItemId,
+          batch: 'BATCH-2026-A1',
           quantity: Number(quantity),
         }),
       });
