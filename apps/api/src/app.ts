@@ -17,6 +17,25 @@ app.use(cors());
 app.use(express.json());
 app.use(requestIdMiddleware);
 
+// Root endpoint
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Foundry Mini Operations ERP API',
+    status: 'online',
+    version: '1.0.0',
+    webApp: 'http://localhost:3000',
+    healthCheck: 'http://localhost:4000/health',
+    endpoints: {
+      auth: '/api/v1/auth',
+      inventory: '/api/v1/inventory',
+      workOrders: '/api/v1/work-orders',
+      transfers: '/api/v1/transfers',
+      orders: '/api/v1/orders',
+      events: '/api/v1/events/sse',
+    },
+  });
+});
+
 // Health check endpoints
 app.use('/health', healthRouter);
 app.use('/api/v1/health', healthRouter);
