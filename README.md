@@ -46,12 +46,13 @@ flowchart TB
 
 | Screen | Preview |
 |:---|:---|
-| **Inventory & 3D Visualizer** | `![Inventory 3D Visualizer](docs/screenshots/inventory_3d.png)` |
+| **Login Portal & Role Selection** | `![Login Portal](docs/screenshots/login.png)` |
+| **Inventory & 3D Stock Visualizer** | `![Inventory 3D Visualizer](docs/screenshots/inventory_3d.png)` |
 | **Work Orders & Shortage Calculation** | `![Work Orders](docs/screenshots/work_orders.png)` |
 | **Internal Stock Transfers State Machine** | `![Transfers](docs/screenshots/transfers.png)` |
 | **Customer Orders & Atomic Reservations** | `![Customer Orders](docs/screenshots/orders.png)` |
 
-> *Tip: Save your screenshot files as `inventory_3d.png`, `work_orders.png`, `transfers.png`, and `orders.png` inside the [`docs/screenshots/`](docs/screenshots) folder.*
+> *Tip: Save your screenshot files as `login.png`, `inventory_3d.png`, `work_orders.png`, `transfers.png`, and `orders.png` inside the [`docs/screenshots/`](docs/screenshots) folder.*
 
 ---
 
