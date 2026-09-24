@@ -4,10 +4,12 @@ import { env } from '../config/env.js';
 import { ApiError } from '../utils/apiError.js';
 import { Role } from '@prisma/client';
 
+export type UserRole = 'ADMIN' | 'OPS' | 'SALES';
+
 export interface AuthUserPayload {
   id: string;
   email: string;
-  role: Role;
+  role: Role | UserRole;
   assignedLocationId: string | null;
 }
 
