@@ -269,9 +269,11 @@ npm test
 
 ---
 
-## API Documentation
+## API Documentation & Architectural Decisions
 
-- **Postman Collection**: `docs/postman_collection.json` — import into Postman for interactive endpoint testing
+- 📚 **Full REST API Reference**: [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) — Comprehensive endpoints, request bodies, sample responses, and SSE event stream guide.
+- 🧠 **Algorithmic Decisions & Tradeoffs**: [`docs/ARCHITECTURE_AND_TRADEOFFS.md`](docs/ARCHITECTURE_AND_TRADEOFFS.md) — Deep-dive into concurrency control, atomic SQL updates vs. pessimistic locking, append-only ledger design, and transfer state machine rules.
+- 📮 **Postman Collection**: `docs/postman_collection.json` — Import into Postman for interactive endpoint testing.
 
 ### API Endpoint Routes
 
