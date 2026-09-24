@@ -22,15 +22,17 @@ export default function InventoryPage() {
   const loadData = async () => {
     try {
       const [balRes, ledRes]: [any, any] = await Promise.all([
-        fetchApi('/inventory/balances'),
-        fetchApi('/inventory/ledger'),
+        fetchApi('/inventory/balances').catch(() => []),
+        fetchApi('/inventory/ledger').catch(() => []),
       ]);
-      setBalances(balRes || []);
-      setLedger(ledRes || []);
+      const balList = Array.isArray(balRes) ? balRes : [];
+      const ledList = Array.isArray(ledRes) ? ledRes : [];
+      setBalances(balList);
+      setLedger(ledList);
 
-      if (balRes && balRes.length > 0) {
-        setSelectedLocationId(balRes[0].locationId);
-        setSelectedItemId(balRes[0].itemId);
+      if (balList.length > 0) {
+        setSelectedLocationId(balList[0].locationId);
+        setSelectedItemId(balList[0].itemId);
       }
     } catch (err) {
       console.error(err);

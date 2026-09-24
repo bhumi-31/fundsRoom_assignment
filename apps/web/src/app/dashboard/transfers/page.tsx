@@ -24,14 +24,14 @@ export default function TransfersPage() {
     try {
       try {
         const trRes = await fetchApi('/transfers');
-        setTransfers(trRes || []);
+        setTransfers(Array.isArray(trRes) ? trRes : []);
       } catch (e: any) {
         console.warn('Transfers fetch notice:', e.message);
       }
 
       try {
         const balRes = await fetchApi('/inventory/balances');
-        const list = balRes || [];
+        const list: any[] = Array.isArray(balRes) ? balRes : [];
         setBalances(list);
 
         if (list.length >= 2) {

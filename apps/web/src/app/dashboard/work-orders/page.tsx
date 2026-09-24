@@ -23,14 +23,14 @@ export default function WorkOrdersPage() {
     try {
       try {
         const woRes = await fetchApi('/work-orders');
-        setWorkOrders(woRes || []);
+        setWorkOrders(Array.isArray(woRes) ? woRes : []);
       } catch (e: any) {
         console.warn('Work orders fetch notice:', e.message);
       }
 
       try {
         const balRes = await fetchApi('/inventory/balances');
-        const list = balRes || [];
+        const list: any[] = Array.isArray(balRes) ? balRes : [];
         setBalances(list);
 
         if (list.length > 0) {

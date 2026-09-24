@@ -25,14 +25,14 @@ export default function OrdersPage() {
     try {
       try {
         const ordRes = await fetchApi('/orders');
-        setOrders(ordRes || []);
+        setOrders(Array.isArray(ordRes) ? ordRes : []);
       } catch (e: any) {
         console.warn('Orders fetch notice:', e.message);
       }
 
       try {
         const balRes = await fetchApi('/inventory/balances');
-        const list = balRes || [];
+        const list: any[] = Array.isArray(balRes) ? balRes : [];
         setBalances(list);
 
         if (list.length > 0) {
