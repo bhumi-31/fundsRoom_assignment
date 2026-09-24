@@ -1,6 +1,17 @@
-# FOUNDRY — Mini Operations ERP
+# 🏭 FOUNDRY — Mini Operations ERP
 
-> Full-stack Operations ERP covering **Inventory → Work Order → Stock Check → Internal Transfer → Customer Reservation** with real-time SSE updates, atomic database transactions, and interactive neobrutalist UI.
+> A production-oriented, full-stack Operations ERP engineered to manage multi-location inventory, work order shortage calculations, internal stock transfer state machines, and atomic customer order reservations.
+
+### 🔄 Core Operational Flow
+$$\text{Inventory} \longrightarrow \text{Work Order} \longrightarrow \text{Stock Check} \longrightarrow \text{Internal Transfer / Shortage} \longrightarrow \text{Customer Reservation}$$
+
+---
+
+### ✨ Key Technical Highlights
+- **🔒 Race-Condition Proof Concurrency**: Prevents double-reservations and stock over-allocations at the PostgreSQL database level using atomic conditional SQL transactions (`UPDATE ... WHERE physicalQty - reservedQty >= qty`).
+- **📖 Double-Entry Stock Ledger**: Immutable append-only audit trail (`StockLedger`) as the single source of truth for all inventory movements.
+- **⚡ Real-Time SSE Event Stream**: Server-Sent Events (SSE) broadcasting live stock changes across active client sessions instantly.
+- **🎨 Neobrutalist WebGL UI**: Built with Next.js 14 App Router, dynamic WebGL Molten Metal shaders, and interactive Three.js 3D stock visualizers.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
