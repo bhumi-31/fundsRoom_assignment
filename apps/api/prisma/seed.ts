@@ -131,7 +131,7 @@ async function main() {
   await prisma.workOrder.create({
     data: {
       locationId: locCentral.id,
-      itemId: s.itemBearing.id, // Low stock -> causes shortage calculation trigger!
+      itemId: itemBearing.id, // Low stock -> causes shortage calculation trigger!
       requiredQty: 40,
       assignedUserId: opsUser.id,
       status: WorkOrderStatus.IN_PROGRESS,

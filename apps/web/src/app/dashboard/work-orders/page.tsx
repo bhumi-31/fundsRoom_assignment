@@ -2,16 +2,35 @@
 
 import React, { useEffect, useState } from 'react';
 import { BadgeCard } from '@/components/ui/badge-card';
+import { Button } from '@/components/ui/button';
 import { fetchApi } from '@/lib/api-client';
 
 export default function WorkOrdersPage() {
   const [workOrders, setWorkOrders] = useState<any[]>([]);
+  const [balances, setBalances] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Form State
+  const [selectedLocationId, setSelectedLocationId] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState('');
+  const [requiredQty, setRequiredQty] = useState(25);
 
   const loadWorkOrders = async () => {
     try {
-      const res: any = await fetchApi('/work-orders');
-      setWorkOrders(res || []);
+      const [woRes, balRes]: [any, any] = await Promise.all([
+        fetchApi('/work-orders'),
+        fetchApi('/inventory/balances'),
+      ]);
+      setWorkOrders(woRes || []);
+      setBalances(balRes || []);
+
+      if (balRes && balRes.length > 0) {
+        setSelectedLocationId(balRes[0].locationId);
+        setSelectedItemId(balRes[0].itemId);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -23,20 +42,131 @@ export default function WorkOrdersPage() {
     loadWorkOrders();
   }, []);
 
+  const handleCreateWorkOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+
+    try {
+      await fetchApi('/work-orders', {
+        method: 'POST',
+        body: JSON.stringify({
+          locationId: selectedLocationId,
+          itemId: selectedItemId,
+          requiredQty: Number(requiredQty),
+        }),
+      });
+      setShowModal(false);
+      loadWorkOrders();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create work order.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <div className="p-12 text-center font-mono font-black animate-pulse">COMPUTING WORK ORDER SHORTAGES...</div>;
   }
 
+  // Get unique locations and items for selects
+  const uniqueLocations = Array.from(new Set(balances.map((b) => JSON.stringify({ id: b.locationId, name: b.locationName })))).map((s) => JSON.parse(s));
+  const uniqueItems = Array.from(new Set(balances.map((b) => JSON.stringify({ id: b.itemId, name: b.itemName })))).map((s) => JSON.parse(s));
+
   return (
     <div className="space-y-6">
-      <div className="bg-[#FFB800] border-3 border-[#0A0A0A] p-4 shadow-neo">
-        <h2 className="text-2xl font-black uppercase text-[#0A0A0A]">
-          WORK ORDERS & SHORTAGE COMPUTATION ENGINE
-        </h2>
-        <p className="text-xs font-mono font-bold uppercase text-gray-800">
-          SHORTAGE = MAX(REQUIRED_QTY - AVAILABLE_AT_LOCATION, 0) // COMPUTED ON READ
-        </p>
+      {/* Header Banner */}
+      <div className="bg-[#FFB800] border-3 border-[#0A0A0A] p-4 shadow-neo flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-black uppercase text-[#0A0A0A]">
+            WORK ORDERS & SHORTAGE COMPUTATION ENGINE
+          </h2>
+          <p className="text-xs font-mono font-bold uppercase text-gray-800">
+            ADMIN ROLE AUTHORIZED // SHORTAGE = MAX(REQUIRED_QTY - AVAILABLE_AT_LOCATION, 0)
+          </p>
+        </div>
+        <Button variant="primary" size="md" onClick={() => setShowModal(true)}>
+          + CREATE WORK ORDER
+        </Button>
       </div>
+
+      {/* Interactive Neobrutalist Modal Form */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#F5F1E8] border-3 border-[#0A0A0A] p-6 shadow-neo space-y-4">
+            <div className="flex items-center justify-between border-b-3 border-[#0A0A0A] pb-3">
+              <h3 className="text-xl font-black uppercase text-[#0A0A0A]">
+                ⚡ CREATE NEW WORK ORDER
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 border-2 border-[#0A0A0A] bg-[#FF4D4D] text-white font-black text-sm shadow-neo-sm hover:translate-x-0.5 hover:translate-y-0.5"
+              >
+                ✕
+              </button>
+            </div>
+
+            {error && (
+              <div className="p-3 border-2 border-[#0A0A0A] bg-[#FF4D4D] text-white font-mono text-xs font-bold uppercase">
+                ⚠ {error}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateWorkOrder} className="space-y-4 font-mono text-xs">
+              <div>
+                <label className="block font-black uppercase mb-1">TARGET WAREHOUSE LOCATION</label>
+                <select
+                  value={selectedLocationId}
+                  onChange={(e) => setSelectedLocationId(e.target.value)}
+                  className="w-full px-3 py-2 border-3 border-[#0A0A0A] bg-white font-mono font-bold text-sm focus:outline-none"
+                >
+                  {uniqueLocations.map((loc: any) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-black uppercase mb-1">ITEM REQUIRED</label>
+                <select
+                  value={selectedItemId}
+                  onChange={(e) => setSelectedItemId(e.target.value)}
+                  className="w-full px-3 py-2 border-3 border-[#0A0A0A] bg-white font-mono font-bold text-sm focus:outline-none"
+                >
+                  {uniqueItems.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-black uppercase mb-1">REQUIRED QUANTITY</label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={requiredQty}
+                  onChange={(e) => setRequiredQty(Number(e.target.value))}
+                  className="w-full px-3 py-2 border-3 border-[#0A0A0A] bg-white font-mono font-bold text-sm focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" variant="primary" disabled={submitting} className="flex-1">
+                  {submitting ? 'DISPATCHING WORK ORDER...' : 'CONFIRM & ISSUE WORK ORDER →'}
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
+                  CANCEL
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <BadgeCard title="ACTIVE WORK ORDERS MATRIX" variant="amber">
         <div className="overflow-x-auto">
@@ -54,9 +184,9 @@ export default function WorkOrdersPage() {
             </thead>
             <tbody>
               {workOrders.map((wo) => (
-                <tr key={wo.id} className="border-b-2 border-[#0A0A0A]">
+                <tr key={wo.id} className="border-b-2 border-[#0A0A0A] hover:bg-white/60">
                   <td className="p-3 font-bold">{wo.id.slice(0, 8)}...</td>
-                  <td className="p-3">{wo.item?.name}</td>
+                  <td className="p-3 font-bold">{wo.item?.name}</td>
                   <td className="p-3">{wo.location?.name}</td>
                   <td className="p-3 text-right font-bold">{wo.requiredQty}</td>
                   <td className="p-3 text-right font-bold">{wo.availableAtLocation}</td>
@@ -71,7 +201,9 @@ export default function WorkOrdersPage() {
                       </span>
                     )}
                   </td>
-                  <td className="p-3 font-bold uppercase">{wo.status}</td>
+                  <td className="p-3 font-bold uppercase">
+                    <span className="px-2 py-1 bg-white border-2 border-[#0A0A0A]">{wo.status}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>

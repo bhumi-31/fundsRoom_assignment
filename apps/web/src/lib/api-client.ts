@@ -26,5 +26,5 @@ export async function fetchApi<T>(
     throw new Error(data.message || `API Error: ${response.status}`);
   }
 
-  return data.data;
+  return data.data !== undefined ? data.data : data;
 }

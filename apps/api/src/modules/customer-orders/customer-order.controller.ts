@@ -28,3 +28,17 @@ export async function handleGetCustomerOrders(req: Request, res: Response, next:
     next(error);
   }
 }
+
+export async function handleCancelCustomerOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const order = await customerOrderService.cancelCustomerOrder(req.params.id, userId);
+    res.status(200).json({
+      success: true,
+      data: order,
+      requestId: req.requestId,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

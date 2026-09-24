@@ -28,3 +28,7 @@ logs
 .vscode
 .idea
 .ds_store
+
+# Private Demo & Evaluation Guide
+DEMO_GUIDE.md
+

@@ -53,6 +53,7 @@ export default function LoginPage() {
         color3="#F5F1E8"
         speed={0.3}
         brightness={1.2}
+        mouseInteraction={false}
       />
 
       {/* Elevated Neobrutalist Login Card */}

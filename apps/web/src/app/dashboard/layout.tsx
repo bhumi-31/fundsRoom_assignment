@@ -23,11 +23,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     setUser(JSON.parse(cachedUser));
 
-    // Poll backend health endpoint
+    // Poll backend health endpoint & low stock telemetry
     const checkHealth = async () => {
       try {
-        const res: any = await fetchApi('/health');
-        setHealth(res.status === 'ONLINE' ? 'ONLINE' : 'DEGRADED');
+        const [healthRes, balRes]: [any, any] = await Promise.all([
+          fetchApi('/health'),
+          fetchApi('/inventory/balances').catch(() => []),
+        ]);
+
+        const isOnline = healthRes?.status === 'ONLINE' || healthRes?.database === 'ONLINE';
+        setHealth(isOnline ? 'ONLINE' : 'DEGRADED');
+
+        if (Array.isArray(balRes)) {
+          const lowStock = balRes.filter((b: any) => (b.physicalQty - b.reservedQty) <= 20).length;
+          setLowStockCount(lowStock);
+        }
       } catch (err) {
         setHealth('DEGRADED');
       }
