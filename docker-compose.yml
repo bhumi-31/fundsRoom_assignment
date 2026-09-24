@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: foundry-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: foundry
+      POSTGRES_PASSWORD: foundry123
+      POSTGRES_DB: foundry_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foundry -d foundry_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: foundry-api
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://foundry:foundry123@postgres:5432/foundry_db?schema=public
+      PORT: 4000
+      NODE_ENV: production
+      JWT_SECRET: super-secret-jwt-key-foundry-forge-os-2026
+      JWT_REFRESH_SECRET: super-secret-refresh-jwt-key-foundry-forge-os-2026
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: foundry-web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
