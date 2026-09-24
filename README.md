@@ -4,6 +4,18 @@
 
 ---
 
+## 📸 Screenshots & UI Showcase
+
+| Screen | Preview |
+|:---|:---|
+| **Login Portal & Role Selection** | ![Login Portal](docs/screenshots/login.png) |
+| **Inventory & 3D Stock Visualizer** | ![Inventory 3D Visualizer](docs/screenshots/inventory_3d.png) |
+| **Work Orders & Shortage Calculation** | ![Work Orders](docs/screenshots/work_orders.png) |
+| **Internal Stock Transfers State Machine** | ![Transfers](docs/screenshots/transfers.png) |
+| **Customer Orders & Atomic Reservations** | ![Customer Orders](docs/screenshots/orders.png) |
+
+---
+
 ## 📐 System Architecture & Flow Diagram
 
 ```mermaid
@@ -39,20 +51,6 @@ flowchart TB
     Database -->|State Events| SSE_Hub
     SSE_Hub -->|Real-time Stream| SSE_Client
 ```
-
----
-
-## 📸 Screenshots & UI Showcase
-
-| Screen | Preview |
-|:---|:---|
-| **Login Portal & Role Selection** | ![Login Portal](docs/screenshots/login.png) |
-| **Inventory & 3D Stock Visualizer** | ![Inventory 3D Visualizer](docs/screenshots/inventory_3d.png) |
-| **Work Orders & Shortage Calculation** | ![Work Orders](docs/screenshots/work_orders.png) |
-| **Internal Stock Transfers State Machine** | ![Transfers](docs/screenshots/transfers.png) |
-| **Customer Orders & Atomic Reservations** | ![Customer Orders](docs/screenshots/orders.png) |
-
-> *Tip: Save your screenshot files as `login.png`, `inventory_3d.png`, `work_orders.png`, `transfers.png`, and `orders.png` inside the [`docs/screenshots/`](docs/screenshots) folder.*
 
 ---
 
@@ -356,6 +354,10 @@ npm test
 
 ---
 
-## Author & License
+## Author & Evaluation Metadata
 
-Built as a technical case study for Full-Stack Developer evaluation.
+- **Author**: Bhumika Narula
+- **University**: Lovely Professional University (LPU)
+- **Email**: [bhumikanarula01@gmail.com](mailto:bhumikanarula01@gmail.com)
+- **GitHub Repository**: [https://github.com/bhumi-31/fundsRoom_assignment](https://github.com/bhumi-31/fundsRoom_assignment)
+- **Project**: Foundry — Mini Operations ERP (Full-Stack Technical Case Study)
