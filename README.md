@@ -271,6 +271,32 @@ cd apps/api
 npm test
 ```
 
+### Vitest Execution Output Log
+
+```text
+ RUN  v1.6.1 E:/fundsroom-assignment/apps/api
+
+ ✓ tests/inventory-concurrency.test.ts  (3 tests)
+   - [Mandatory Test #1] cannot reserve more than available inventory
+   - [Mandatory Test #1 - Concurrency] two concurrent reservations exceeding total stock cannot both succeed
+   - should correctly calculate Available = Physical - Reserved
+
+ ✓ tests/transfers.test.ts              (5 tests)
+   - should allow valid linear transition REQUESTED -> DISPATCHED -> RECEIVED
+   - should reject invalid direct transition REQUESTED -> RECEIVED
+   - [Mandatory Test #4] should reject same transfer from being RECEIVED twice
+   - [Mandatory Test #2] cannot transfer more than available inventory
+   - [Mandatory Test #3] destination stock increases only after transfer RECEIVED
+
+ ✓ tests/rbac.test.ts                   (1 test)
+   - [Mandatory Test #5] Unauthorized user cannot perform restricted operation (SALES cannot create Work Orders -> HTTP 403)
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  02:07:14
+   Duration  1.07s
+```
+
 ### Mandatory Tests Implemented
 
 | # | Test | File | Status |
