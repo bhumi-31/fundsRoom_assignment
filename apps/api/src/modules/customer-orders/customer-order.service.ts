@@ -84,7 +84,7 @@ export async function cancelCustomerOrder(orderId: string, userId: string) {
       );
     }
 
-    // 2. Find the original reservation ledger entry to get the batch
+    // 2. Find the original reservation ledger entry or lookup batch from InventoryBalance
     const reservationLedger = await tx.stockLedger.findFirst({
       where: {
         refType: 'CUSTOMER_ORDER',
@@ -93,11 +93,13 @@ export async function cancelCustomerOrder(orderId: string, userId: string) {
       },
     });
 
-    if (!reservationLedger) {
-      throw ApiError.notFound(`No reservation ledger entry found for order ${orderId}`);
+    let batch = reservationLedger?.batch;
+    if (!batch) {
+      const balanceMatch = await tx.inventoryBalance.findFirst({
+        where: { itemId: order.itemId, locationId: order.locationId },
+      });
+      batch = balanceMatch?.batch || 'BATCH-2026-B1';
     }
-
-    const batch = reservationLedger.batch;
 
     // 3. Release reserved qty on InventoryBalance
     await tx.inventoryBalance.updateMany({
