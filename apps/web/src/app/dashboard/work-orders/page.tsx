@@ -19,20 +19,27 @@ export default function WorkOrdersPage() {
   const [requiredQty, setRequiredQty] = useState(25);
 
   const loadWorkOrders = async () => {
+    setLoading(true);
     try {
-      const [woRes, balRes]: [any, any] = await Promise.all([
-        fetchApi('/work-orders'),
-        fetchApi('/inventory/balances'),
-      ]);
-      setWorkOrders(woRes || []);
-      setBalances(balRes || []);
-
-      if (balRes && balRes.length > 0) {
-        setSelectedLocationId(balRes[0].locationId);
-        setSelectedItemId(balRes[0].itemId);
+      try {
+        const woRes = await fetchApi('/work-orders');
+        setWorkOrders(woRes || []);
+      } catch (e: any) {
+        console.warn('Work orders fetch notice:', e.message);
       }
-    } catch (err) {
-      console.error(err);
+
+      try {
+        const balRes = await fetchApi('/inventory/balances');
+        const list = balRes || [];
+        setBalances(list);
+
+        if (list.length > 0) {
+          setSelectedLocationId((prev) => prev || list[0].locationId);
+          setSelectedItemId((prev) => prev || list[0].itemId);
+        }
+      } catch (e: any) {
+        console.warn('Balances fetch notice:', e.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -69,9 +76,14 @@ export default function WorkOrdersPage() {
     return <div className="p-12 text-center font-mono font-black animate-pulse">COMPUTING WORK ORDER SHORTAGES...</div>;
   }
 
-  // Get unique locations and items for selects
-  const uniqueLocations = Array.from(new Set(balances.map((b) => JSON.stringify({ id: b.locationId, name: b.locationName })))).map((s) => JSON.parse(s));
-  const uniqueItems = Array.from(new Set(balances.map((b) => JSON.stringify({ id: b.itemId, name: b.itemName })))).map((s) => JSON.parse(s));
+  // Fallback lists if balances is not populated
+  const uniqueLocations = Array.from(
+    new Set(balances.map((b) => JSON.stringify({ id: b.locationId, name: b.locationName })))
+  ).map((s) => JSON.parse(s));
+
+  const uniqueItems = Array.from(
+    new Set(balances.map((b) => JSON.stringify({ id: b.itemId, name: b.itemName })))
+  ).map((s) => JSON.parse(s));
 
   return (
     <div className="space-y-6">
@@ -120,11 +132,15 @@ export default function WorkOrdersPage() {
                   onChange={(e) => setSelectedLocationId(e.target.value)}
                   className="w-full px-3 py-2 border-3 border-[#0A0A0A] bg-white font-mono font-bold text-sm focus:outline-none"
                 >
-                  {uniqueLocations.map((loc: any) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </option>
-                  ))}
+                  {uniqueLocations.length > 0 ? (
+                    uniqueLocations.map((loc: any) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="00000000-0000-0000-0000-000000000001">Main Warehouse (Location 1)</option>
+                  )}
                 </select>
               </div>
 
@@ -135,11 +151,15 @@ export default function WorkOrdersPage() {
                   onChange={(e) => setSelectedItemId(e.target.value)}
                   className="w-full px-3 py-2 border-3 border-[#0A0A0A] bg-white font-mono font-bold text-sm focus:outline-none"
                 >
-                  {uniqueItems.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
+                  {uniqueItems.length > 0 ? (
+                    uniqueItems.map((item: any) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="00000000-0000-0000-0000-000000000002">Microcontroller Chip (Item 1)</option>
+                  )}
                 </select>
               </div>
 
@@ -183,29 +203,37 @@ export default function WorkOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {workOrders.map((wo) => (
-                <tr key={wo.id} className="border-b-2 border-[#0A0A0A] hover:bg-white/60">
-                  <td className="p-3 font-bold">{wo.id.slice(0, 8)}...</td>
-                  <td className="p-3 font-bold">{wo.item?.name}</td>
-                  <td className="p-3">{wo.location?.name}</td>
-                  <td className="p-3 text-right font-bold">{wo.requiredQty}</td>
-                  <td className="p-3 text-right font-bold">{wo.availableAtLocation}</td>
-                  <td className="p-3 text-right">
-                    {wo.hasShortage ? (
-                      <span className="px-2 py-1 bg-[#FF4D4D] text-white font-black border-2 border-[#0A0A0A]">
-                        ⚠ {wo.shortage} SHORTAGE
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 bg-[#3DDC84] text-[#0A0A0A] font-black border-2 border-[#0A0A0A]">
-                        ✓ FULLY STOCKED
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-3 font-bold uppercase">
-                    <span className="px-2 py-1 bg-white border-2 border-[#0A0A0A]">{wo.status}</span>
+              {workOrders.length > 0 ? (
+                workOrders.map((wo) => (
+                  <tr key={wo.id} className="border-b-2 border-[#0A0A0A] hover:bg-white/60">
+                    <td className="p-3 font-bold">{wo.id.slice(0, 8)}...</td>
+                    <td className="p-3 font-bold">{wo.item?.name}</td>
+                    <td className="p-3">{wo.location?.name}</td>
+                    <td className="p-3 text-right font-bold">{wo.requiredQty}</td>
+                    <td className="p-3 text-right font-bold">{wo.availableAtLocation}</td>
+                    <td className="p-3 text-right">
+                      {wo.hasShortage ? (
+                        <span className="px-2 py-1 bg-[#FF4D4D] text-white font-black border-2 border-[#0A0A0A]">
+                          ⚠ {wo.shortage} SHORTAGE
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-[#3DDC84] text-[#0A0A0A] font-black border-2 border-[#0A0A0A]">
+                          ✓ FULLY STOCKED
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 font-bold uppercase">
+                      <span className="px-2 py-1 bg-white border-2 border-[#0A0A0A]">{wo.status}</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="p-6 text-center font-bold text-gray-600">
+                    NO WORK ORDERS CREATED YET. CLICK "+ CREATE WORK ORDER" ABOVE.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

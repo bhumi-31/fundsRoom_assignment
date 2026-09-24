@@ -10,7 +10,7 @@ export const workOrderRouter = Router();
 
 workOrderRouter.use(authenticateJWT);
 
-workOrderRouter.get('/', authorizeRoles(Role.ADMIN, Role.OPS), handleGetWorkOrders);
+workOrderRouter.get('/', authorizeRoles(Role.ADMIN, Role.OPS, Role.SALES), handleGetWorkOrders);
 
 // ADMIN manages Work Orders (Mandatory RBAC test!)
 workOrderRouter.post(

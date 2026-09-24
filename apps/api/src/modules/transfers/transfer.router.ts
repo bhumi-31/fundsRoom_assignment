@@ -10,7 +10,7 @@ export const transferRouter = Router();
 
 transferRouter.use(authenticateJWT);
 
-transferRouter.get('/', authorizeRoles(Role.ADMIN, Role.OPS), handleGetTransfers);
+transferRouter.get('/', authorizeRoles(Role.ADMIN, Role.OPS, Role.SALES), handleGetTransfers);
 
 transferRouter.post(
   '/',
