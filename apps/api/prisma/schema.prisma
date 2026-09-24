@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  OPS
+  SALES
+}
+
+enum LedgerReason {
+  RECEIPT
+  RESERVE
+  RELEASE
+  DISPATCH
+  RECEIVE_TRANSFER
+  ADJUSTMENT
+}
+
+enum WorkOrderStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TransferStatus {
+  REQUESTED
+  DISPATCHED
+  RECEIVED
+}
+
+enum CustomerOrderStatus {
+  RESERVED
+  CANCELLED
+}
+
+model User {
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  passwordHash       String
+  role               Role
+  assignedLocationId String?
+  assignedLocation   Location?       @relation(fields: [assignedLocationId], references: [id], onDelete: SetNull)
+  workOrders         WorkOrder[]     @relation("AssignedWorkOrders")
+  customerOrders     CustomerOrder[] @relation("SalesUserCustomerOrders")
+  stockLedgerEntries StockLedger[]   @relation("LedgerCreatedBy")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([email])
+}
+
+model Location {
+  id                 String             @id @default(uuid())
+  name               String             @unique
+  users              User[]
+  inventoryBalances  InventoryBalance[]
+  stockLedgerEntries StockLedger[]
+  workOrders         WorkOrder[]
+  sourceTransfers    Transfer[]         @relation("SourceLocationTransfers")
+  destTransfers      Transfer[]         @relation("DestLocationTransfers")
+  customerOrders     CustomerOrder[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+model Item {
+  id                 String             @id @default(uuid())
+  sku                String             @unique
+  name               String
+  category           String
+  inventoryBalances  InventoryBalance[]
+  stockLedgerEntries StockLedger[]
+  workOrders         WorkOrder[]
+  transfers          Transfer[]
+  customerOrders     CustomerOrder[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([sku])
+}
+
+model InventoryBalance {
+  id          String   @id @default(uuid())
+  itemId      String
+  locationId  String
+  batch       String
+  physicalQty Int      @default(0)
+  reservedQty Int      @default(0)
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  location    Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([itemId, locationId, batch])
+  @@index([itemId, locationId])
+}
+
+model StockLedger {
+  id             String       @id @default(uuid())
+  itemId         String
+  locationId     String
+  batch          String
+  delta          Int
+  reason         LedgerReason
+  refType        String?
+  refId          String?
+  idempotencyKey String?      @unique
+  createdBy      String
+  item           Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  location       Location     @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user           User         @relation("LedgerCreatedBy", fields: [createdBy], references: [id])
+  createdAt      DateTime     @default(now())
+
+  @@index([itemId, locationId])
+  @@index([idempotencyKey])
+}
+
+model WorkOrder {
+  id             String          @id @default(uuid())
+  locationId     String
+  itemId         String
+  requiredQty    Int
+  assignedUserId String?
+  status         WorkOrderStatus @default(ASSIGNED)
+  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  item           Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  assignedUser   User?           @relation("AssignedWorkOrders", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Transfer {
+  id               String         @id @default(uuid())
+  sourceLocationId String
+  destLocationId   String
+  itemId           String
+  quantity         Int
+  status           TransferStatus @default(REQUESTED)
+  dispatchedAt     DateTime?
+  receivedAt       DateTime?
+  sourceLocation   Location       @relation("SourceLocationTransfers", fields: [sourceLocationId], references: [id], onDelete: Cascade)
+  destLocation     Location       @relation("DestLocationTransfers", fields: [destLocationId], references: [id], onDelete: Cascade)
+  item             Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model CustomerOrder {
+  id          String              @id @default(uuid())
+  customerRef String
+  itemId      String
+  locationId  String
+  quantity    Int
+  status      CustomerOrderStatus @default(RESERVED)
+  salesUserId String
+  item        Item                @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  location    Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  salesUser   User                @relation("SalesUserCustomerOrders", fields: [salesUserId], references: [id], onDelete: Cascade)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
