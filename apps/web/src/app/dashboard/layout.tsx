@@ -3,10 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { StatusPill } from '@/components/ui/status-pill';
 import { RoleBadge } from '@/components/ui/role-badge';
 import { Button } from '@/components/ui/button';
 import { fetchApi } from '@/lib/api-client';
+
+const MoltenMetal = dynamic(() => import('@/components/3d/MoltenMetal'), { ssr: false });
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -63,9 +66,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative bg-[#F5F1E8]">
+      {/* Subtle Molten Metal WebGL Background Layer (Non-interfering, pointer-events-none) */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-20 overflow-hidden">
+        <MoltenMetal
+          speed={0.2}
+          scale={3.5}
+          glow={1.2}
+          opacity={0.3}
+          lightMode={true}
+          color1="#FFB800"
+          color2="#A9D9F2"
+          color3="#0A0A0A"
+          backgroundColor="#F5F1E8"
+        />
+      </div>
+
       {/* Neobrutalist Header Bar */}
-      <header className="border-b-3 border-[#0A0A0A] bg-[#F5F1E8] px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
+      <header className="border-b-3 border-[#0A0A0A] bg-[#F5F1E8]/90 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="flex items-center gap-2 group">
             <div className="w-10 h-10 border-3 border-[#0A0A0A] bg-[#FFB800] flex items-center justify-center font-black text-xl shadow-neo-sm group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
@@ -128,7 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </header>
 
       {/* Main Screen Workspace */}
-      <main className="flex-1 p-6 max-w-7xl w-full mx-auto">{children}</main>
+      <main className="flex-1 p-6 max-w-7xl w-full mx-auto relative z-10">{children}</main>
     </div>
   );
 }
