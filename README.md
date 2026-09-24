@@ -5,14 +5,6 @@
 ### 🔄 Core Operational Flow
 $$\text{Inventory} \longrightarrow \text{Work Order} \longrightarrow \text{Stock Check} \longrightarrow \text{Internal Transfer / Shortage} \longrightarrow \text{Customer Reservation}$$
 
----
-
-### ✨ Key Technical Highlights
-- **🔒 Race-Condition Proof Concurrency**: Prevents double-reservations and stock over-allocations at the PostgreSQL database level using atomic conditional SQL transactions (`UPDATE ... WHERE physicalQty - reservedQty >= qty`).
-- **📖 Double-Entry Stock Ledger**: Immutable append-only audit trail (`StockLedger`) as the single source of truth for all inventory movements.
-- **⚡ Real-Time SSE Event Stream**: Server-Sent Events (SSE) broadcasting live stock changes across active client sessions instantly.
-- **🎨 Neobrutalist WebGL UI**: Built with Next.js 14 App Router, dynamic WebGL Molten Metal shaders, and interactive Three.js 3D stock visualizers.
-
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -36,6 +28,14 @@ $$\text{Inventory} \longrightarrow \text{Work Order} \longrightarrow \text{Stock
 | **Work Orders & Shortage Calculation** | ![Work Orders](docs/screenshots/work_orders.png) |
 | **Internal Stock Transfers State Machine** | ![Transfers](docs/screenshots/transfers.png) |
 | **Customer Orders & Atomic Reservations** | ![Customer Orders](docs/screenshots/orders.png) |
+
+---
+
+### ✨ Key Technical Highlights
+- **🔒 Race-Condition Proof Concurrency**: Prevents double-reservations and stock over-allocations at the PostgreSQL database level using atomic conditional SQL transactions (`UPDATE ... WHERE physicalQty - reservedQty >= qty`).
+- **📖 Double-Entry Stock Ledger**: Immutable append-only audit trail (`StockLedger`) as the single source of truth for all inventory movements.
+- **⚡ Real-Time SSE Event Stream**: Server-Sent Events (SSE) broadcasting live stock changes across active client sessions instantly.
+- **🎨 Neobrutalist WebGL UI**: Built with Next.js 14 App Router, dynamic WebGL Molten Metal shaders, and interactive Three.js 3D stock visualizers.
 
 ---
 
